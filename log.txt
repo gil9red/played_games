@@ -1,0 +1,83 @@
+[2016-01-02 04:12:38,495] played_games.py[LINE:369] DEBUG    Start read_settings. CONFIG_FILE=config.
+[2016-01-02 04:12:38,495] played_games.py[LINE:388] WARNING  [Errno 2] No such file or directory: 'config'
+[2016-01-02 04:12:38,495] played_games.py[LINE:389] DEBUG    Заполняю значения по умолчанию.
+[2016-01-02 04:12:38,495] played_games.py[LINE:397] DEBUG    Finish read_settings.
+[2016-01-02 04:12:38,504] played_games.py[LINE:264] DEBUG    TEST_USING_FILE_GAMES = True.
+[2016-01-02 04:12:38,505] played_games.py[LINE:270] DEBUG    Open and read gistfile1.txt start.
+[2016-01-02 04:12:38,505] played_games.py[LINE:273] DEBUG    Finish open and read. Content file length = 7681.
+[2016-01-02 04:12:38,505] played_games.py[LINE:310] DEBUG    Read from file finish.
+[2016-01-02 04:12:38,505] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:12:38,505] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:12:38,505] played_games_parser.py[LINE:281] DEBUG    filter_exp="".
+[2016-01-02 04:12:38,506] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="*".
+[2016-01-02 04:12:38,514] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Destiny, платформа: 
+[2016-01-02 04:12:38,514] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Eternia, платформа: 
+[2016-01-02 04:12:38,514] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Vagrant Story, платформа: 
+[2016-01-02 04:12:38,514] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Breath of Fire III, платформа: 
+[2016-01-02 04:12:38,515] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Chrono Cross, платформа: 
+[2016-01-02 04:12:38,517] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.011 ms.
+[2016-01-02 04:12:53,363] played_games.py[LINE:264] DEBUG    TEST_USING_FILE_GAMES = True.
+[2016-01-02 04:12:53,363] played_games.py[LINE:270] DEBUG    Open and read gistfile1.txt start.
+[2016-01-02 04:12:53,364] played_games.py[LINE:273] DEBUG    Finish open and read. Content file length = 7681.
+[2016-01-02 04:12:53,364] played_games.py[LINE:310] DEBUG    Read from file finish.
+[2016-01-02 04:12:53,364] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:12:53,364] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:12:53,364] played_games_parser.py[LINE:281] DEBUG    filter_exp="".
+[2016-01-02 04:12:53,365] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="*".
+[2016-01-02 04:12:53,382] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Destiny, платформа: 
+[2016-01-02 04:12:53,383] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Eternia, платформа: 
+[2016-01-02 04:12:53,383] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Vagrant Story, платформа: 
+[2016-01-02 04:12:53,383] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Breath of Fire III, платформа: 
+[2016-01-02 04:12:53,383] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Chrono Cross, платформа: 
+[2016-01-02 04:12:53,386] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.021 ms.
+[2016-01-02 04:13:25,705] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:25,706] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:25,706] played_games_parser.py[LINE:281] DEBUG    filter_exp="D".
+[2016-01-02 04:13:25,706] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="D*".
+[2016-01-02 04:13:25,721] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.015 ms.
+[2016-01-02 04:13:25,986] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:25,987] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:25,987] played_games_parser.py[LINE:281] DEBUG    filter_exp="De".
+[2016-01-02 04:13:25,987] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="De*".
+[2016-01-02 04:13:26,001] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:26,298] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:26,299] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:26,299] played_games_parser.py[LINE:281] DEBUG    filter_exp="Dev".
+[2016-01-02 04:13:26,299] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="Dev*".
+[2016-01-02 04:13:26,313] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:27,450] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:27,450] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:27,451] played_games_parser.py[LINE:281] DEBUG    filter_exp="De".
+[2016-01-02 04:13:27,451] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="De*".
+[2016-01-02 04:13:27,465] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:28,684] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:28,684] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:28,685] played_games_parser.py[LINE:281] DEBUG    filter_exp="De*".
+[2016-01-02 04:13:28,698] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:30,174] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:30,174] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:30,175] played_games_parser.py[LINE:281] DEBUG    filter_exp="Dev*".
+[2016-01-02 04:13:30,188] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:31,382] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:31,382] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:31,382] played_games_parser.py[LINE:281] DEBUG    filter_exp="De*".
+[2016-01-02 04:13:31,396] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:13:40,435] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:13:40,436] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:13:40,436] played_games_parser.py[LINE:281] DEBUG    filter_exp="De".
+[2016-01-02 04:13:40,436] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="De*".
+[2016-01-02 04:13:40,450] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.014 ms.
+[2016-01-02 04:14:10,566] played_games.py[LINE:316] DEBUG    Start build tree.
+[2016-01-02 04:14:10,567] played_games_parser.py[LINE:278] DEBUG    Start parsing
+[2016-01-02 04:14:10,567] played_games_parser.py[LINE:281] DEBUG    filter_exp="".
+[2016-01-02 04:14:10,567] played_games_parser.py[LINE:286] DEBUG    Change filter_exp="*".
+[2016-01-02 04:14:10,584] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Destiny, платформа: 
+[2016-01-02 04:14:10,585] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Tales of Eternia, платформа: 
+[2016-01-02 04:14:10,585] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Vagrant Story, платформа: 
+[2016-01-02 04:14:10,585] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Breath of Fire III, платформа: 
+[2016-01-02 04:14:10,586] played_games_parser.py[LINE:332] WARNING  Обнаружен неизвестный атрибут: ?, игра: ? Chrono Cross, платформа: 
+[2016-01-02 04:14:10,590] played_games_parser.py[LINE:369] DEBUG    Finish parsing. Elapsed time: 0.023 ms.
+[2016-01-02 04:15:15,686] played_games.py[LINE:400] DEBUG    Start write_settings. CONFIG_FILE=config.
+[2016-01-02 04:15:15,686] played_games.py[LINE:401] DEBUG    Build dict.
+[2016-01-02 04:15:15,687] played_games.py[LINE:414] DEBUG    Write config.
+[2016-01-02 04:15:15,688] played_games.py[LINE:420] DEBUG    Finish write_settings.
