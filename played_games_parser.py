@@ -4,6 +4,7 @@
 __author__ = 'ipetrash'
 
 
+from collections import defaultdict
 from enum import Enum
 import fnmatch
 import time
@@ -87,8 +88,11 @@ class Parser:
 
         def __init__(self, kind=None, platform=None):
             self.kind = kind
-            self.game_list = list()
             self.platform = platform
+
+        @property
+        def game_list(self):
+            return self.platform.get_game_list(self.kind)
 
         def sort_game_list(self, key=lambda x: x.name, reverse=False):
             self.game_list.sort(key=key, reverse=reverse)
@@ -100,16 +104,7 @@ class Parser:
             return len(self.game_list)
 
         def add(self, name):
-            if self.platform.is_unique_game(name):
-                game = Parser.Game(name, self)
-
-                self.game_list.append(game)
-
-                # Для отслеживания дубликатов игр. Но как то не хорошо
-                self.platform.add_game(game)
-            else:
-                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}. Оригинал находится в '
-                            'категории {}.'.format(name, self.kind, self.platform.get_game(name).category_kind))
+            self.platform.add_game(name, self)
 
         def __iter__(self):
             return self.game_list.__iter__()
@@ -133,23 +128,30 @@ class Parser:
             self.name = name
             self.categories = dict()
 
+            # Ключом словаря будет вид категории, а значением список игр
+            self._game_list_by_category_kind = defaultdict(list)
+
             # Используется для проверки дублирующихся в категории игр
-            self._game_name_list = set()
+            # Ключом словаря будет имя игры, а значением объект игры -- Parser.Game
             self._game_name_dict = dict()
 
-        def add_game(self, game):
-            """"""
+        def get_game_list(self, category_kind):
+            return self._game_list_by_category_kind[category_kind]
 
-            name = game.name
+        def add_game(self, game_name, category):
+            """Добавление игры в указанную категорию."""
 
-            self._game_name_list.add(name)
-            self._game_name_dict[name] = game
+            if game_name not in self._game_name_dict.keys():
+                game = Parser.Game(game_name, category)
+
+                self.get_game_list(category.kind).append(game)
+                self._game_name_dict[game_name] = game
+            else:
+                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}. Оригинал находится в '
+                            'категории {}.'.format(game_name, category.kind, self.get_game(game_name).category_kind))
 
         def get_game(self, name):
             return self._game_name_dict[name]
-
-        def is_unique_game(self, game_name):
-            return game_name not in self._game_name_list
 
         @property
         def count_games(self):
