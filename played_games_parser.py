@@ -41,11 +41,6 @@ def parse_game_name(game_name):
 
     return [game_name]
 
-# for line in text.split('\n'):
-#     if line.strip():
-#         line = line[2:].strip()
-#         print(parse_game_name(line))
-
 
 class Parser:
     """Класс парсера. Содержит словарь платформ и объект неопределенных игр."""
@@ -60,6 +55,12 @@ class Parser:
         FINISHED_WATCHED = 2
         NOT_FINISHED_WATCHED = 3
         OTHER = 4
+
+        def __str__(self):
+            return '{}'.format(self.name)
+
+        def __repr__(self):
+            return self.__str__()
 
     class Game:
         """Класс игры. Содержит название игры и категорию, в которую игра входит."""
@@ -89,6 +90,9 @@ class Parser:
             self.game_list = list()
             self.platform = platform
 
+        def sort_game_list(self, key=lambda x: x.name, reverse=False):
+            self.game_list.sort(key=key, reverse=reverse)
+
         @property
         def count(self):
             """Свойство возвращает количество игр в категории."""
@@ -96,7 +100,16 @@ class Parser:
             return len(self.game_list)
 
         def add(self, name):
-            self.game_list.append(Parser.Game(name, self))
+            if self.platform.is_unique_game(name):
+                game = Parser.Game(name, self)
+
+                self.game_list.append(game)
+
+                # Для отслеживания дубликатов игр. Но как то не хорошо
+                self.platform.add_game(game)
+            else:
+                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}. Оригинал находится в '
+                            'категории {}.'.format(name, self.kind, self.platform.get_game(name).category_kind))
 
         def __iter__(self):
             return self.game_list.__iter__()
@@ -120,6 +133,24 @@ class Parser:
             self.name = name
             self.categories = dict()
 
+            # Используется для проверки дублирующихся в категории игр
+            self._game_name_list = set()
+            self._game_name_dict = dict()
+
+        def add_game(self, game):
+            """"""
+
+            name = game.name
+
+            self._game_name_list.add(name)
+            self._game_name_dict[name] = game
+
+        def get_game(self, name):
+            return self._game_name_dict[name]
+
+        def is_unique_game(self, game_name):
+            return game_name not in self._game_name_list
+
         @property
         def count_games(self):
             return len(self.game_list)
@@ -130,15 +161,21 @@ class Parser:
 
         @property
         def game_list(self):
-            games = set()
+            """Нередактируемый список всех игр на платформе."""
 
-            # Добавляем все игры категории
-            for v in self.categories.values():
-                games.update(v.game_list)
+            return frozenset(self._game_name_dict.values())
 
-            return frozenset(games)
+            # games = set()
+            #
+            # # Добавляем все игры категории
+            # for v in self.categories.values():
+            #     games.update(v.game_list)
+            #
+            # return frozenset(games)
 
         def get(self, kind_category):
+            """Получение категории по перечислению. Если категории нет, она будет создана."""
+
             if kind_category not in self.categories:
                 category = Parser.Category(kind_category, self)
                 self.categories[kind_category] = category
@@ -216,7 +253,7 @@ class Parser:
         for p in list(self.platforms.values()) + list(self.other.platforms.values()):
             all_games.extend(p.game_list)
 
-        return all_games
+        return frozenset(all_games)
 
     @property
     def count_games(self):
@@ -242,10 +279,10 @@ class Parser:
     @staticmethod
     def delete_empty_platforms(platforms):
         # Удаляем пустые платформы
-        platform_on_delete = list()
+        platform_on_delete = set()
         for k, v in platforms.items():
             if v.count_games == 0:
-                platform_on_delete.append(k)
+                platform_on_delete.add(k)
 
         for name in platform_on_delete:
             del platforms[name]
@@ -360,11 +397,11 @@ class Parser:
             # Сортировка игр
             for platform in self.platforms.values():
                 for category in platform.categories.values():
-                    category.game_list.sort(key=lambda x: x.name, reverse=sort_reverse)
+                    category.sort_game_list(reverse=sort_reverse)
 
             for platform in self.other.platforms.values():
                 for category in platform.categories.values():
-                    category.game_list.sort(key=lambda x: x.name, reverse=sort_reverse)
+                    category.sort_game_list(reverse=sort_reverse)
 
         logger.debug('Finish parsing. Elapsed time: {:.3f} ms.'.format(time.clock() - t))
 
