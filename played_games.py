@@ -298,7 +298,7 @@ class MainWindow(QMainWindow):
 
             logger.debug('Download {} start.'.format(url))
             local_filename, headers = urlretrieve(url, reporthook=reporthook)
-            logger.debug('Download finish:\nlocal_filename: {}\n\nHeaders:\n{}'.format(local_filename, headers))
+            logger.debug('Download finish.')
 
             # # Через 3 секунды прячем прогресс бар
             # QTimer.singleShot(5000, PROGRESS_BAR.hide)
