@@ -289,6 +289,8 @@ class Parser:
         for name in platform_on_delete:
             del platforms[name]
 
+    # TODO: Добавление пользовательских функций как в транзаксисе. Функция, вызываемая до добавления игры,
+    # после, до парсинга, после парсинга и т.п. Можно даже не одиночную функцию, а список функций-обработчиков завести.
     def parse(self, text, filter_exp='', parse_game_name_on_sequence=True, sort_game=False, sort_reverse=False,
               dont_show_number_1_on_game=False):
         """Функция парсит строку игр.
