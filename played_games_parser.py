@@ -369,7 +369,7 @@ class Parser:
                     # Если строка не пуста, значит в ней есть неизвестные символы
                     if unknown_attributes:
                         # Добавляем, если нет, к неопределенным играм узел платформы или получаем платформу
-                        logger.warning('Обнаружен неизвестный атрибут: {}, игра: {}, платформа: '.format(
+                        logger.warning('Обнаружен неизвестный атрибут: {}, игра: {}, платформа: {}.'.format(
                             unknown_attributes, line, name_platform))
 
                         self.other.add_game(name_platform, line)
@@ -407,7 +407,7 @@ class Parser:
                 for category in platform.categories.values():
                     category.sort_game_list(reverse=sort_reverse)
 
-        logger.debug('Finish parsing. Elapsed time: {:.3f} ms.'.format(time.clock() - t))
+        logger.debug('Finish parsing. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
     @property
     def sorted_platforms(self, reverse=True):

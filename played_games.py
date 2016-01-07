@@ -294,12 +294,12 @@ class MainWindow(QMainWindow):
                 url = urljoin(url, str(rel_url))
                 logger.debug('Full url = {}.'.format(url))
 
-            logger.debug('Get url file last revision finish. Elapsed time: {:.3f} ms.'.format(time.clock() - t))
+            logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
             logger.debug('Download {} start.'.format(url))
             t = time.clock()
             local_filename, headers = urlretrieve(url, reporthook=reporthook)
-            logger.debug('Download finish. Elapsed time: {:.3f} ms.'.format(time.clock() - t))
+            logger.debug('Download finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
             # # Через 3 секунды прячем прогресс бар
             # QTimer.singleShot(5000, PROGRESS_BAR.hide)
