@@ -292,7 +292,11 @@ class Parser:
     # TODO: Добавление пользовательских функций как в транзаксисе. Функция, вызываемая до добавления игры,
     # после, до парсинга, после парсинга и т.п. Можно даже не одиночную функцию, а список функций-обработчиков завести.
     def parse(self, text, filter_exp='', parse_game_name_on_sequence=True, sort_game=False, sort_reverse=False,
-              dont_show_number_1_on_game=False):
+              dont_show_number_1_on_game=False, show_only_categories=(CategoryEnum.FINISHED_GAME,
+                                                                      CategoryEnum.NOT_FINISHED_GAME,
+                                                                      CategoryEnum.FINISHED_WATCHED,
+                                                                      CategoryEnum.NOT_FINISHED_WATCHED,
+                                                                      CategoryEnum.OTHER)):
         """Функция парсит строку игр.
 
         Args:
@@ -314,6 +318,7 @@ class Parser:
             sort_reverse (bool): направление сортировки
             dont_show_number_1_on_game (bool): определяет показывать ли номер серии на первых сериях игры.
                 Пример: True -- "Resident Evil 1", False -- "Resident Evil"
+            show_only_categories (list): фильтр по категориям
         """
 
         logger.debug('Start parsing')
@@ -338,8 +343,8 @@ class Parser:
                 continue
 
             # Определим игровую платформу: ПК, консоли и т.п.
-            if (line[0] not in Parser.ALL_ATTRIBUTES_GAMES and
-                        line[0] not in Parser.ALL_ATTRIBUTES_GAMES) and line.endswith(':'):
+            if (line[0] not in Parser.ALL_ATTRIBUTES_GAMES
+                and line[0] not in Parser.ALL_ATTRIBUTES_GAMES) and line.endswith(':'):
                 # Имя платформы без двоеточия на конце
                 name_platform = line[0: len(line) - 1]
                 platform_item = self.get(name_platform)
@@ -372,7 +377,8 @@ class Parser:
                         logger.warning('Обнаружен неизвестный атрибут: {}, игра: {}, платформа: {}.'.format(
                             unknown_attributes, line, name_platform))
 
-                        self.other.add_game(name_platform, line)
+                        if Parser.CategoryEnum.OTHER in show_only_categories:
+                            self.other.add_game(name_platform, line)
                         continue
 
                     is_finished_watched = attributes == '@ ' or attributes == ' @'
@@ -381,17 +387,23 @@ class Parser:
                     is_finished_game = attributes == '  '
                     is_not_finished_game = attributes == '- ' or attributes == ' -'
 
+                    def add_game(category, game_name):
+                        # Фильтруем по типу категории
+                        if category in show_only_categories:
+                            platform_item.get(category).add(game_name)
+
                     if is_finished_game:
-                        platform_item.get(Parser.CategoryEnum.FINISHED_GAME).add(game_name)
+                        add_game(Parser.CategoryEnum.FINISHED_GAME, game_name)
                     elif is_not_finished_game:
-                        platform_item.get(Parser.CategoryEnum.NOT_FINISHED_GAME).add(game_name)
+                        add_game(Parser.CategoryEnum.NOT_FINISHED_GAME, game_name)
                     elif is_finished_watched:
-                        platform_item.get(Parser.CategoryEnum.FINISHED_WATCHED).add(game_name)
+                        add_game(Parser.CategoryEnum.FINISHED_WATCHED, game_name)
                     elif is_not_finished_watched:
-                        platform_item.get(Parser.CategoryEnum.NOT_FINISHED_WATCHED).add(game_name)
+                        add_game(Parser.CategoryEnum.NOT_FINISHED_WATCHED, game_name)
                     else:
-                        logger.warning('Неопределенная игра {}, платформа: {}.'.format(line, name_platform))
-                        self.other.add_game(name_platform, game_name)
+                        if Parser.CategoryEnum.OTHER in show_only_categories:
+                            logger.warning('Неопределенная игра {}, платформа: {}.'.format(line, name_platform))
+                            self.other.add_game(name_platform, game_name)
 
         Parser.delete_empty_platforms(self.platforms)
         Parser.delete_empty_platforms(self.other.platforms)

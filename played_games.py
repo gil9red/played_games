@@ -113,7 +113,6 @@ ENUM_CATEGORY_TITLE_DICT = {
     Parser.CategoryEnum.NOT_FINISHED_WATCHED: 'Не закончен просмотр',
 }
 
-
 # Последовательность добавления категорий в узел платформы
 SEQ_ADDED_CATEGORIES = [Parser.CategoryEnum.FINISHED_GAME,
                         Parser.CategoryEnum.NOT_FINISHED_GAME,
@@ -166,6 +165,37 @@ class MainWindow(QMainWindow):
         layout.addRow("SORT_GAME", self.SORT_GAME)
         layout.addRow(label_SORT_REVERSE, self.SORT_REVERSE)
         layout.addRow("DONT_SHOW_NUMBER_1_ON_GAME", self.DONT_SHOW_NUMBER_1_ON_GAME)
+
+        # TODO: может в checkbox'ах показывать количество игр данных категорий
+        self.check_FINISHED_GAME = QCheckBox(Parser.CategoryEnum.FINISHED_GAME.name)
+        self.check_NOT_FINISHED_GAME = QCheckBox(Parser.CategoryEnum.NOT_FINISHED_GAME.name)
+        self.check_FINISHED_WATCHED = QCheckBox(Parser.CategoryEnum.FINISHED_WATCHED.name)
+        self.check_NOT_FINISHED_WATCHED = QCheckBox(Parser.CategoryEnum.NOT_FINISHED_WATCHED.name)
+        self.check_OTHER = QCheckBox(Parser.CategoryEnum.OTHER.name)
+
+        self.check_FINISHED_GAME.setChecked(True)
+        self.check_NOT_FINISHED_GAME.setChecked(True)
+        self.check_FINISHED_WATCHED.setChecked(True)
+        self.check_NOT_FINISHED_WATCHED.setChecked(True)
+        self.check_OTHER.setChecked(True)
+
+        show_only_layout = QVBoxLayout()
+        show_only_layout.addWidget(self.check_FINISHED_GAME)
+        show_only_layout.addWidget(self.check_NOT_FINISHED_GAME)
+        show_only_layout.addWidget(self.check_FINISHED_WATCHED)
+        show_only_layout.addWidget(self.check_NOT_FINISHED_WATCHED)
+        show_only_layout.addWidget(self.check_OTHER)
+
+        show_only_group = QGroupBox('Show categories:')
+        show_only_group.setLayout(show_only_layout)
+        # show_only_group.setCheckable(True)
+        # show_only_group.setChecked(True)
+        # show_only_group.toggled.connect(lambda x:
+        #                                 [i.setChecked(x)
+        #                                  for i in show_only_group.findChildren(QCheckBox)])
+
+        layout.addRow(show_only_group)
+
         widget = QWidget()
         widget.setLayout(layout)
 
@@ -316,13 +346,29 @@ class MainWindow(QMainWindow):
     def load_tree(self):
         logger.debug('Start build tree.')
 
+        show_only_categories = list()
+        if self.check_FINISHED_GAME.isChecked():
+            show_only_categories.append(Parser.CategoryEnum.FINISHED_GAME)
+
+        if self.check_NOT_FINISHED_GAME.isChecked():
+            show_only_categories.append(Parser.CategoryEnum.NOT_FINISHED_GAME)
+
+        if self.check_FINISHED_WATCHED.isChecked():
+            show_only_categories.append(Parser.CategoryEnum.FINISHED_WATCHED)
+
+        if self.check_NOT_FINISHED_WATCHED.isChecked():
+            show_only_categories.append(Parser.CategoryEnum.NOT_FINISHED_WATCHED)
+
+        if self.check_OTHER.isChecked():
+            show_only_categories.append(Parser.CategoryEnum.OTHER)
+
         self.parser.parse(self.parse_content,
                           self.line_edit_filter.text(),
                           self.PARSE_GAME_NAME_ON_SEQUENCE.isChecked(),
                           self.SORT_GAME.isChecked(),
                           self.SORT_REVERSE.isChecked(),
                           self.DONT_SHOW_NUMBER_1_ON_GAME.isChecked(),
-                          )
+                          show_only_categories)
         self.tree_games.clear()
 
         for k, v in self.parser.sorted_platforms:
@@ -379,6 +425,12 @@ class MainWindow(QMainWindow):
                 self.SORT_REVERSE.setChecked(settings['SORT_REVERSE'])
                 self.DONT_SHOW_NUMBER_1_ON_GAME.setChecked(settings['DONT_SHOW_NUMBER_1_ON_GAME'])
 
+                self.check_FINISHED_GAME.setChecked(settings['check_FINISHED_GAME'])
+                self.check_NOT_FINISHED_GAME.setChecked(settings['check_NOT_FINISHED_GAME'])
+                self.check_FINISHED_WATCHED.setChecked(settings['check_FINISHED_WATCHED'])
+                self.check_NOT_FINISHED_WATCHED.setChecked(settings['check_NOT_FINISHED_WATCHED'])
+                self.check_OTHER.setChecked(settings['check_OTHER'])
+
                 state = QByteArray.fromBase64(settings['MainWindow_State'])
                 self.restoreState(state)
 
@@ -395,6 +447,12 @@ class MainWindow(QMainWindow):
             self.SORT_REVERSE.setChecked(False)
             self.DONT_SHOW_NUMBER_1_ON_GAME.setChecked(False)
 
+            self.check_FINISHED_GAME.setChecked(True)
+            self.check_NOT_FINISHED_GAME.setChecked(True)
+            self.check_FINISHED_WATCHED.setChecked(True)
+            self.check_NOT_FINISHED_WATCHED.setChecked(True)
+            self.check_OTHER.setChecked(True)
+
         logger.debug('Finish read_settings.')
 
     def write_settings(self):
@@ -407,6 +465,12 @@ class MainWindow(QMainWindow):
             'SORT_GAME': self.SORT_GAME.isChecked(),
             'SORT_REVERSE': self.SORT_REVERSE.isChecked(),
             'DONT_SHOW_NUMBER_1_ON_GAME': self.DONT_SHOW_NUMBER_1_ON_GAME.isChecked(),
+
+            'check_FINISHED_GAME': self.check_FINISHED_GAME.isChecked(),
+            'check_NOT_FINISHED_GAME': self.check_NOT_FINISHED_GAME.isChecked(),
+            'check_FINISHED_WATCHED': self.check_FINISHED_WATCHED.isChecked(),
+            'check_NOT_FINISHED_WATCHED': self.check_NOT_FINISHED_WATCHED.isChecked(),
+            'check_OTHER': self.check_OTHER.isChecked(),
 
             'MainWindow_State': str(self.saveState().toBase64()),
             'MainWindow_Geometry': str(self.saveGeometry().toBase64()),
