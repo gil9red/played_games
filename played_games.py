@@ -14,9 +14,12 @@ from urllib.parse import urljoin
 
 from lxml import etree
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-
+try:
+    from PySide.QtGui import *
+    from PySide.QtCore import *
+except ImportError:
+    from PyQt4.QtGui import *
+    from PyQt4.QtCore import *
 
 from common import get_logger
 
