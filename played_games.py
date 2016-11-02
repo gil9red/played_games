@@ -14,12 +14,9 @@ from urllib.parse import urljoin
 
 from lxml import etree
 
-try:
-    from PySide.QtGui import *
-    from PySide.QtCore import *
-except ImportError:
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import *
+
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 
 from common import get_logger
 
@@ -475,8 +472,8 @@ class MainWindow(QMainWindow):
             'check_NOT_FINISHED_WATCHED': self.check_NOT_FINISHED_WATCHED.isChecked(),
             'check_OTHER': self.check_OTHER.isChecked(),
 
-            'MainWindow_State': str(self.saveState().toBase64()),
-            'MainWindow_Geometry': str(self.saveGeometry().toBase64()),
+            'MainWindow_State': bytes(self.saveState().toBase64()).decode(),
+            'MainWindow_Geometry': bytes(self.saveGeometry().toBase64()).decode(),
         }
 
         logger.debug('Write config.')
