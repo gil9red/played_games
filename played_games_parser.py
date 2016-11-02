@@ -132,7 +132,7 @@ class Parser:
             self._game_list_by_category_kind = defaultdict(list)
 
             # Используется для проверки дублирующихся в категории игр
-            # Ключом словаря будет имя игры, а значением объект игры -- Parser.Game
+            # Ключом словаря будет кортеж имени игры и категории, а значением объект игры -- Parser.Game
             self._game_name_dict = dict()
 
         def get_game_list(self, category_kind):
@@ -141,17 +141,16 @@ class Parser:
         def add_game(self, game_name, category):
             """Добавление игры в указанную категорию."""
 
-            if game_name not in self._game_name_dict.keys():
-                game = Parser.Game(game_name, category)
+            # Если игра с такой категории в списке всех игр уже есть
+            if (game_name, category.kind) in self._game_name_dict:
+                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}.'.format(
+                    game_name, category.kind))
+                return
 
-                self.get_game_list(category.kind).append(game)
-                self._game_name_dict[game_name] = game
-            else:
-                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}. Оригинал находится в '
-                            'категории {}.'.format(game_name, category.kind, self.get_game(game_name).category_kind))
+            game = Parser.Game(game_name, category)
 
-        def get_game(self, name):
-            return self._game_name_dict[name]
+            self.get_game_list(category.kind).append(game)
+            self._game_name_dict[(game_name, category.kind)] = game
 
         @property
         def count_games(self):
@@ -167,14 +166,6 @@ class Parser:
 
             return frozenset(self._game_name_dict.values())
 
-            # games = set()
-            #
-            # # Добавляем все игры категории
-            # for v in self.categories.values():
-            #     games.update(v.game_list)
-            #
-            # return frozenset(games)
-
         def get(self, kind_category):
             """Получение категории по перечислению. Если категории нет, она будет создана."""
 
@@ -184,19 +175,6 @@ class Parser:
                 return category
 
             return self.categories[kind_category]
-
-            # # Пытаемся преобразовать атрибут в перечисление, иначе пытаемся получить
-            # # как атрибут
-            # kind = Parser.CategoryEnum.fromstring(kind_category)
-            # if kind is not None:
-            #     if kind not in self.categories:
-            #         category = Parser.Category(kind)
-            #         self.categories[kind] = category
-            #         return category
-            #
-            #     return self.categories[kind]
-            #
-            # return None
 
         def __str__(self):
             return 'Platform {}. Games: {}. Categories: {}.'.format(self.name, self.count_games, self.count_categories)
@@ -289,8 +267,6 @@ class Parser:
         for name in platform_on_delete:
             del platforms[name]
 
-    # TODO: Добавление пользовательских функций как в транзаксисе. Функция, вызываемая до добавления игры,
-    # после, до парсинга, после парсинга и т.п. Можно даже не одиночную функцию, а список функций-обработчиков завести.
     def parse(self, text, filter_exp='', parse_game_name_on_sequence=True, sort_game=False, sort_reverse=False,
               dont_show_number_1_on_game=False, show_only_categories=(CategoryEnum.FINISHED_GAME,
                                                                       CategoryEnum.NOT_FINISHED_GAME,
