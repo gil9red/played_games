@@ -12,35 +12,35 @@ import time
 from common import get_logger
 logger = get_logger('played_games_parser')
 
-
-# Регулярка вытаскивает выражения вида: 1, 2, 3 и 1-3
+# Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
 import re
-PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)')
+PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
+                                     flags=re.IGNORECASE)
 
 
 def parse_game_name(game_name):
     match = PARSE_GAME_NAME_PATTERN.search(game_name)
-    if match is not None:
-        seq_str = match.group(0)
-        short_name = game_name.replace(seq_str, '').strip()
+    if match is None:
+        return [game_name]
 
-        if ',' in seq_str:
-            seq = seq_str.replace(' ', '').split(',')
-            seq = tuple(map(int, seq))
+    seq_str = match.group(0)
+    short_name = game_name.replace(seq_str, '').strip()
 
-        elif '-' in seq_str:
-            seq = seq_str.replace(' ', '').split('-')
-            if len(seq) > 2:
-                logger.warning('Unknown seq str = "{}".'.format(seq_str))
-            else:
-                seq = tuple(map(int, seq))
-                seq = tuple(range(seq[0], seq[1] + 1))
-        else:
+    if ',' in seq_str:
+        seq = seq_str.replace(' ', '').split(',')
+
+    elif '-' in seq_str:
+        seq = seq_str.replace(' ', '').split('-')
+        if len(seq) > 2:
             logger.warning('Unknown seq str = "{}".'.format(seq_str))
+        else:
+            seq = tuple(map(int, seq))
+            seq = tuple(range(seq[0], seq[1] + 1))
+    else:
+        logger.warning('Unknown seq str = "{}".'.format(seq_str))
+        return [game_name]
 
-        return ['{} {}'.format(short_name, num) for num in seq]
-
-    return [game_name]
+    return ['{} {}'.format(short_name, num) for num in seq]
 
 
 class Parser:
