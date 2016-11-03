@@ -9,7 +9,7 @@ import json
 import time
 import sys
 
-from urllib.request import urlopen, urlretrieve
+from urllib.request import urlopen
 from urllib.parse import urljoin
 
 from lxml import etree
@@ -39,64 +39,6 @@ def add_tree_widget_item_game(game):
     return QTreeWidgetItem([game.name])
 
 
-# # TODO: временно
-# PROGRESS_BAR = None
-
-# TODO: автоматизировать обновление файла gist
-
-# TODO: скрипт проверки необходимости обновления
-# from urllib.request import urlopen
-# from lxml import etree
-# from io import StringIO
-# from datetime import datetime
-#
-#
-# def need_update(local_last_update_datetime):
-#     url = 'https://gist.github.com/gil9red/2f80a34fb601cd685353/revisions?diff=unified'
-#
-#     with urlopen(url) as f:
-#         context = f.read().decode()
-#
-#     parser = etree.HTMLParser()
-#     tree = etree.parse(StringIO(context), parser)
-#
-#     last_datetime = tree.xpath('//*[@class="gist-revision"]//time/@datetime')[0]
-#     last_datetime = datetime.strptime(str(last_datetime), "%Y-%m-%dT%H:%M:%SZ")
-#     print('last_datetime = ' + str(last_datetime))
-#     print('local_last_update_datetime = ' + str(local_last_update_datetime))
-#
-#     return last_datetime > local_last_update_datetime
-#
-#
-# local_last_update_datetime = datetime(2015, 12, 23)
-# need = need_update(local_last_update_datetime)
-# print('need_update = ' + str(need))
-
-
-def reporthook(blocknum, blocksize, totalsize):
-    readsofar = blocknum * blocksize
-    if totalsize > 0:
-        percent = readsofar * 1e2 / totalsize
-        if percent > 100:
-            percent = 100
-            readsofar = totalsize
-
-        s = "\r%5.1f%% %*d / %d" % (percent, len(str(totalsize)), readsofar, totalsize)
-        print(s, end='')
-        # PROGRESS_BAR.setValue(percent)
-
-        # near the end
-        if readsofar >= totalsize:
-            print()
-
-    # total size is unknown
-    else:
-        print("read {}".format(readsofar))
-
-    # TODO: не помогает
-    app.processEvents()
-
-
 WINDOW_TITLE = 'Played Games'
 TREE_HEADER = 'Games'
 OTHER_GAME_TITLE = 'Неопределенные игры'
@@ -118,13 +60,6 @@ SEQ_ADDED_CATEGORIES = [Parser.CategoryEnum.FINISHED_GAME,
                         Parser.CategoryEnum.NOT_FINISHED_GAME,
                         Parser.CategoryEnum.FINISHED_WATCHED,
                         Parser.CategoryEnum.NOT_FINISHED_WATCHED]
-
-
-# TODO: сделать модель дерева
-# TODO: кнопку показа статистики: игры, платформы
-# TODO: избавить от подвисания программы во время загрузки файла и его парсинга
-# TODO: показывать прогресс загрузки из сети файла (хотя бы в процентах)
-# TODO: обновлять дерево при смене настроек
 
 
 class MainWindow(QMainWindow):
@@ -188,12 +123,6 @@ class MainWindow(QMainWindow):
 
         show_only_group = QGroupBox('Show categories:')
         show_only_group.setLayout(show_only_layout)
-        # show_only_group.setCheckable(True)
-        # show_only_group.setChecked(True)
-        # show_only_group.toggled.connect(lambda x:
-        #                                 [i.setChecked(x)
-        #                                  for i in show_only_group.findChildren(QCheckBox)])
-
         layout.addRow(show_only_group)
 
         widget = QWidget()
@@ -206,26 +135,6 @@ class MainWindow(QMainWindow):
         general_tool_bar = self.addToolBar('General')
         general_tool_bar.setObjectName(general_tool_bar.windowTitle())
         general_tool_bar.addAction(self.dock_widget_settings.toggleViewAction())
-
-        # tool_bar_gist_url = self.addToolBar('Gist Url')
-        # layout = QHBoxLayout()
-        # layout.addWidget(self.line_edit_url)
-        # layout.addWidget(self.button_refresh_by_url)
-        # widget = QWidget()
-        # widget.setLayout(layout)
-        # tool_bar_gist_url.addWidget(widget)
-        #
-        # tool_bar_filter = self.addToolBar('Filter')
-        # layout = QHBoxLayout()
-        # self.line_edit_filter = QLineEdit()
-        # self.line_edit_filter.setToolTip('Wildcard Filter')
-        # self.line_edit_filter.textEdited.connect(self.load_tree)
-        #
-        # layout.addWidget(QLabel('Filter:'))
-        # layout.addWidget(self.line_edit_filter)
-        # widget = QWidget()
-        # widget.setLayout(layout)
-        # tool_bar_filter.addWidget(widget)
 
         layout = QHBoxLayout()
         layout.addWidget(self.line_edit_url)
@@ -249,13 +158,6 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central_widget)
 
-        # # TODO: временно
-        # # self.progress_bar = QProgressBar()
-        # # self.statusBar().addWidget(self.progress_bar)
-        # global PROGRESS_BAR
-        # PROGRESS_BAR = QProgressBar()
-        # self.statusBar().addWidget(PROGRESS_BAR)
-
         self.parser = Parser()
         self.parse_content = None
 
@@ -263,34 +165,7 @@ class MainWindow(QMainWindow):
 
         self.read_settings()
 
-    # TODO: выполнить функцию в другом потоке
-    # def download(self, url):
-    #     logger.debug('Download {} start.'.format(url))
-    #     local_filename, headers = urlretrieve(url, reporthook=reporthook)
-    #     logger.debug('Download finish:\nlocal_filename: {}\n\nHeaders:\n{}'.format(local_filename, headers))
-    #
-    #     logger.debug('Read from file start: ' + local_filename)
-    #     with open(local_filename, encoding='utf-8') as f:
-    #         content_file = f.read()
-    #
-    #     logger.debug('Read from file finish.')
-    #
-    #     logger.debug('Load tree start.')
-    #     self.load_tree(content_file)
-    #     logger.debug('Load tree finish.')
-    #
-    #     self.tree_games.expandAll()
-
     def refresh_by_url(self):
-        # TODO: выполнить функцию в другом потоке
-        # TODO: после окончания рабоыт потока генерировать сигнал
-        # и в нем вернуть путь к файлу
-        # import threading
-        #
-        # thread = threading.Thread(target=self.download, args=(self.line_edit_url.text(),))
-        # thread.start()
-        # thread.join()
-
         logger.debug('TEST_USING_FILE_GAMES = {}.'.format(self.TEST_USING_FILE_GAMES.isChecked()))
 
         if self.TEST_USING_FILE_GAMES.isChecked():
@@ -302,9 +177,6 @@ class MainWindow(QMainWindow):
                 content_file = f.read()
             logger.debug('Finish open and read. Content file length = {}.'.format(len(content_file)))
         else:
-            # PROGRESS_BAR.show()
-            # PROGRESS_BAR.setValue(-1)
-
             url = self.line_edit_url.text()
 
             # Теперь нужно получить url файла с последней ревизией
@@ -326,19 +198,10 @@ class MainWindow(QMainWindow):
 
             logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
-            logger.debug('Download {} start.'.format(url))
-            t = time.clock()
-            local_filename, headers = urlretrieve(url, reporthook=reporthook)
-            logger.debug('Download finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
+            with urlopen(url) as f:
+                content_file = f.read().decode()
 
-            # # Через 3 секунды прячем прогресс бар
-            # QTimer.singleShot(5000, PROGRESS_BAR.hide)
-
-            logger.debug('Read from file start: ' + local_filename)
-            with open(local_filename, encoding='utf-8') as f:
-                content_file = f.read()
-
-        logger.debug('Read from file finish.')
+        logger.debug('Read last content finish.')
 
         self.parse_content = content_file
         self.load_tree()
