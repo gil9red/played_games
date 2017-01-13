@@ -27,6 +27,18 @@ logger = get_logger('played_games')
 DEFAULT_URL = 'https://gist.github.com/gil9red/2f80a34fb601cd685353'
 
 
+def log_uncaught_exceptions(ex_cls, ex, tb):
+    text = '{}: {}:\n'.format(ex_cls.__name__, ex)
+    import traceback
+    text += ''.join(traceback.format_tb(tb))
+
+    logger.error(text)
+    QMessageBox.critical(None, 'Error', text)
+    quit()
+
+sys.excepthook = log_uncaught_exceptions
+
+
 def add_tree_widget_item_platform(platform):
     return QTreeWidgetItem(['{} ({}):'.format(platform.name, platform.count_games)])
 
@@ -183,23 +195,33 @@ class MainWindow(QMainWindow):
             logger.debug('Get url file last revision start.')
             t = time.clock()
 
-            with urlopen(url) as f:
-                context = f.read().decode()
+            try:
+                with urlopen(url) as f:
+                    context = f.read().decode()
 
-                parser = etree.HTMLParser()
-                tree = etree.parse(StringIO(context), parser)
+                    parser = etree.HTMLParser()
+                    tree = etree.parse(StringIO(context), parser)
 
-                # Ищем первый файл с кнопкой Raw
-                rel_url = tree.xpath('//*[@class="btn btn-sm "]/@href')[0]
-                logger.debug('Relative url = {}.'.format(rel_url))
+                    # Ищем первый файл с кнопкой Raw
+                    rel_url = tree.xpath('//*[@class="btn btn-sm "]/@href')[0]
+                    logger.debug('Relative url = {}.'.format(rel_url))
 
-                url = urljoin(url, str(rel_url))
-                logger.debug('Full url = {}.'.format(url))
+                    url = urljoin(url, str(rel_url))
+                    logger.debug('Full url = {}.'.format(url))
 
-            logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
+                logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
-            with urlopen(url) as f:
-                content_file = f.read().decode()
+                with urlopen(url) as f:
+                    content_file = f.read().decode()
+
+            except Exception as e:
+                import traceback
+                text = ''.join(traceback.format_exc())
+
+                logger.error(text)
+                QMessageBox.critical(None, 'Error', text)
+
+                content_file = ""
 
         logger.debug('Read last content finish.')
 
