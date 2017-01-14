@@ -191,37 +191,44 @@ class MainWindow(QMainWindow):
         else:
             url = self.line_edit_url.text()
 
-            # Теперь нужно получить url файла с последней ревизией
-            logger.debug('Get url file last revision start.')
-            t = time.clock()
+            # Проверяем, что если прописан путь до файла на компе, то его открываем, иначе считаем ссылкой и качаем
+            import os
+            if os.path.exists(url):
+                with open(url, encoding='utf-8') as f:
+                    content_file = f.read()
 
-            try:
-                with urlopen(url) as f:
-                    context = f.read().decode()
+            else:
+                # Теперь нужно получить url файла с последней ревизией
+                logger.debug('Get url file last revision start.')
+                t = time.clock()
 
-                    parser = etree.HTMLParser()
-                    tree = etree.parse(StringIO(context), parser)
+                try:
+                    with urlopen(url) as f:
+                        context = f.read().decode()
 
-                    # Ищем первый файл с кнопкой Raw
-                    rel_url = tree.xpath('//*[@class="btn btn-sm "]/@href')[0]
-                    logger.debug('Relative url = {}.'.format(rel_url))
+                        parser = etree.HTMLParser()
+                        tree = etree.parse(StringIO(context), parser)
 
-                    url = urljoin(url, str(rel_url))
-                    logger.debug('Full url = {}.'.format(url))
+                        # Ищем первый файл с кнопкой Raw
+                        rel_url = tree.xpath('//*[@class="btn btn-sm "]/@href')[0]
+                        logger.debug('Relative url = {}.'.format(rel_url))
 
-                logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
+                        url = urljoin(url, str(rel_url))
+                        logger.debug('Full url = {}.'.format(url))
 
-                with urlopen(url) as f:
-                    content_file = f.read().decode()
+                    logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
 
-            except Exception as e:
-                import traceback
-                text = ''.join(traceback.format_exc())
+                    with urlopen(url) as f:
+                        content_file = f.read().decode()
 
-                logger.error(text)
-                QMessageBox.critical(None, 'Error', text)
+                except Exception as e:
+                    import traceback
+                    text = ''.join(traceback.format_exc())
 
-                content_file = ""
+                    logger.error(text)
+                    QMessageBox.critical(None, 'Error', text)
+
+                    content_file = ""
 
         logger.debug('Read last content finish.')
 
