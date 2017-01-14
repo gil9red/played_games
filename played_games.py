@@ -15,8 +15,13 @@ from urllib.parse import urljoin
 from lxml import etree
 
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+try:
+    from PyQt5.QtWidgets import *
+    from PyQt5.QtCore import *
+except:
+    from PyQt4.QtGui import *
+    from PyQt4.QtCore import *
+
 
 from common import get_logger
 
@@ -306,6 +311,7 @@ class MainWindow(QMainWindow):
         try:
             with open(CONFIG_FILE, encoding='utf-8') as f:
                 settings = json.load(f)
+                print(settings)
 
                 self.TEST_USING_FILE_GAMES.setChecked(settings['TEST_USING_FILE_GAMES'])
                 self.PARSE_GAME_NAME_ON_SEQUENCE.setChecked(settings['PARSE_GAME_NAME_ON_SEQUENCE'])
@@ -318,14 +324,16 @@ class MainWindow(QMainWindow):
                 self.check_NOT_FINISHED_WATCHED.setChecked(settings['check_NOT_FINISHED_WATCHED'])
                 self.check_OTHER.setChecked(settings['check_OTHER'])
 
-                state = QByteArray.fromBase64(settings['MainWindow_State'])
+                base64_state = settings['MainWindow_State']
+                state = QByteArray.fromBase64(base64_state.encode())
                 self.restoreState(state)
 
-                geometry = QByteArray.fromBase64(settings['MainWindow_Geometry'])
+                base64_geometry = settings['MainWindow_Geometry']
+                geometry = QByteArray.fromBase64(base64_geometry.encode())
                 self.restoreGeometry(geometry)
 
         except Exception as e:
-            logger.warning(e)
+            logger.exception(e)
             logger.debug("Заполняю значения по умолчанию.")
 
             self.TEST_USING_FILE_GAMES.setChecked(True)
