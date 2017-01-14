@@ -19,6 +19,19 @@ PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]
 
 
 def parse_game_name(game_name):
+    """
+    Функция принимает название игры и пытается разобрать его, после возвращает список названий.
+    Т.к. в названии игры может находиться указание ее частей, то функция разберет их.
+
+    Пример:
+        "Resident Evil 4, 5, 6" станет:
+            ["Resident Evil 4", "Resident Evil 5", "Resident Evil 6"]
+
+        "Resident Evil 1-3" станет:
+            ["Resident Evil", "Resident Evil 2", "Resident Evil 3"]
+
+    """
+
     match = PARSE_GAME_NAME_PATTERN.search(game_name)
     if match is None:
         return [game_name]
@@ -40,7 +53,8 @@ def parse_game_name(game_name):
         logger.warning('Unknown seq str = "{}".'.format(seq_str))
         return [game_name]
 
-    return ['{} {}'.format(short_name, num) for num in seq]
+    # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
+    return [short_name if str(num) == '1' else '{} {}'.format(short_name, num) for num in seq]
 
 
 class Parser:
@@ -268,11 +282,11 @@ class Parser:
             del platforms[name]
 
     def parse(self, text, filter_exp='', parse_game_name_on_sequence=True, sort_game=False, sort_reverse=False,
-              dont_show_number_1_on_game=False, show_only_categories=(CategoryEnum.FINISHED_GAME,
-                                                                      CategoryEnum.NOT_FINISHED_GAME,
-                                                                      CategoryEnum.FINISHED_WATCHED,
-                                                                      CategoryEnum.NOT_FINISHED_WATCHED,
-                                                                      CategoryEnum.OTHER)):
+              show_only_categories=(CategoryEnum.FINISHED_GAME,
+                                    CategoryEnum.NOT_FINISHED_GAME,
+                                    CategoryEnum.FINISHED_WATCHED,
+                                    CategoryEnum.NOT_FINISHED_WATCHED,
+                                    CategoryEnum.OTHER)):
         """Функция парсит строку игр.
 
         Args:
@@ -292,8 +306,6 @@ class Parser:
 
             sort_game (bool): сортировка игр
             sort_reverse (bool): направление сортировки
-            dont_show_number_1_on_game (bool): определяет показывать ли номер серии на первых сериях игры.
-                Пример: True -- "Resident Evil 1", False -- "Resident Evil"
             show_only_categories (list): фильтр по категориям
         """
 
@@ -335,9 +347,6 @@ class Parser:
                 game_name_list = parse_game_name(game_name) if parse_game_name_on_sequence else [game_name]
 
                 for game_name in game_name_list:
-                    if dont_show_number_1_on_game and game_name.rstrip().endswith('1'):
-                        game_name = game_name[:len(game_name) - 1].rstrip()
-
                     # Фильтруем игры
                     if not fnmatch.fnmatch(game_name, filter_exp):
                         continue

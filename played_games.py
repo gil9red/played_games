@@ -96,13 +96,11 @@ class MainWindow(QMainWindow):
         label_SORT_REVERSE = QLabel('SORT_REVERSE')
         self.SORT_GAME.toggled.connect(self.SORT_REVERSE.setVisible)
         self.SORT_GAME.toggled.connect(label_SORT_REVERSE.setVisible)
-        self.DONT_SHOW_NUMBER_1_ON_GAME = QCheckBox()
 
         self.TEST_USING_FILE_GAMES.setChecked(True)
         self.PARSE_GAME_NAME_ON_SEQUENCE.setChecked(True)
         self.SORT_GAME.setChecked(False)
         self.SORT_REVERSE.setChecked(False)
-        self.DONT_SHOW_NUMBER_1_ON_GAME.setChecked(False)
 
         self.SORT_REVERSE.setVisible(self.SORT_GAME.isChecked())
         label_SORT_REVERSE.setVisible(self.SORT_GAME.isChecked())
@@ -111,7 +109,6 @@ class MainWindow(QMainWindow):
         layout.addRow("PARSE_GAME_NAME_ON_SEQUENCE", self.PARSE_GAME_NAME_ON_SEQUENCE)
         layout.addRow("SORT_GAME", self.SORT_GAME)
         layout.addRow(label_SORT_REVERSE, self.SORT_REVERSE)
-        layout.addRow("DONT_SHOW_NUMBER_1_ON_GAME", self.DONT_SHOW_NUMBER_1_ON_GAME)
 
         # TODO: может в checkbox'ах показывать количество игр данных категорий
         self.check_FINISHED_GAME = QCheckBox(Parser.CategoryEnum.FINISHED_GAME.name)
@@ -259,7 +256,6 @@ class MainWindow(QMainWindow):
                           self.PARSE_GAME_NAME_ON_SEQUENCE.isChecked(),
                           self.SORT_GAME.isChecked(),
                           self.SORT_REVERSE.isChecked(),
-                          self.DONT_SHOW_NUMBER_1_ON_GAME.isChecked(),
                           show_only_categories)
         self.tree_games.clear()
 
@@ -315,7 +311,6 @@ class MainWindow(QMainWindow):
                 self.PARSE_GAME_NAME_ON_SEQUENCE.setChecked(settings['PARSE_GAME_NAME_ON_SEQUENCE'])
                 self.SORT_GAME.setChecked(settings['SORT_GAME'])
                 self.SORT_REVERSE.setChecked(settings['SORT_REVERSE'])
-                self.DONT_SHOW_NUMBER_1_ON_GAME.setChecked(settings['DONT_SHOW_NUMBER_1_ON_GAME'])
 
                 self.check_FINISHED_GAME.setChecked(settings['check_FINISHED_GAME'])
                 self.check_NOT_FINISHED_GAME.setChecked(settings['check_NOT_FINISHED_GAME'])
@@ -337,7 +332,6 @@ class MainWindow(QMainWindow):
             self.PARSE_GAME_NAME_ON_SEQUENCE.setChecked(True)
             self.SORT_GAME.setChecked(False)
             self.SORT_REVERSE.setChecked(False)
-            self.DONT_SHOW_NUMBER_1_ON_GAME.setChecked(False)
 
             self.check_FINISHED_GAME.setChecked(True)
             self.check_NOT_FINISHED_GAME.setChecked(True)
@@ -356,7 +350,6 @@ class MainWindow(QMainWindow):
             'PARSE_GAME_NAME_ON_SEQUENCE': self.PARSE_GAME_NAME_ON_SEQUENCE.isChecked(),
             'SORT_GAME': self.SORT_GAME.isChecked(),
             'SORT_REVERSE': self.SORT_REVERSE.isChecked(),
-            'DONT_SHOW_NUMBER_1_ON_GAME': self.DONT_SHOW_NUMBER_1_ON_GAME.isChecked(),
 
             'check_FINISHED_GAME': self.check_FINISHED_GAME.isChecked(),
             'check_NOT_FINISHED_GAME': self.check_NOT_FINISHED_GAME.isChecked(),
