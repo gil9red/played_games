@@ -311,7 +311,6 @@ class MainWindow(QMainWindow):
         try:
             with open(CONFIG_FILE, encoding='utf-8') as f:
                 settings = json.load(f)
-                print(settings)
 
                 self.TEST_USING_FILE_GAMES.setChecked(settings['TEST_USING_FILE_GAMES'])
                 self.PARSE_GAME_NAME_ON_SEQUENCE.setChecked(settings['PARSE_GAME_NAME_ON_SEQUENCE'])
