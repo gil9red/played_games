@@ -332,7 +332,7 @@ class Parser:
 
             # Определим игровую платформу: ПК, консоли и т.п.
             if (line[0] not in Parser.ALL_ATTRIBUTES_GAMES
-                and line[0] not in Parser.ALL_ATTRIBUTES_GAMES) and line.endswith(':'):
+                and line[1] not in Parser.ALL_ATTRIBUTES_GAMES) and line.endswith(':'):
                 # Имя платформы без двоеточия на конце
                 name_platform = line[0: len(line) - 1]
                 platform_item = self.get(name_platform)
