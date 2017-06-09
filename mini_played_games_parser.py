@@ -65,9 +65,7 @@ def parse_played_games(text: str) -> dict:
         if not line:
             continue
 
-        flag_1, flag_2 = line[0], line[1]
-
-        if flag_1 not in ' -@' and flag_2 not in ' -@' and line.endswith(':'):
+        if line[0] not in ' -@' and line[1] not in ' -@' and line.endswith(':'):
             platform_name = line[:-1]
 
             platform = {
@@ -83,7 +81,7 @@ def parse_played_games(text: str) -> dict:
         if not platform:
             continue
 
-        flag = flag_1 + flag_2
+        flag = line[:2]
         games = parse_game_name(line[2:])
 
         if flag == '  ':
