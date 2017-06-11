@@ -61,7 +61,6 @@ def parse_played_games(text: str) -> dict:
 
     for line in text.splitlines():
         line = line.rstrip()
-
         if not line:
             continue
 
