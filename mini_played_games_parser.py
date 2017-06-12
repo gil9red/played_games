@@ -67,12 +67,12 @@ def parse_played_games(text: str) -> dict:
         if line[0] not in ' -@' and line[1] not in ' -@' and line.endswith(':'):
             platform_name = line[:-1]
 
-            platform = {
-                FINISHED_GAME: list(),
-                NOT_FINISHED_GAME: list(),
-                FINISHED_WATCHED: list(),
-                NOT_FINISHED_WATCHED: list(),
-            }
+            platform = OrderedDict()
+            platform[FINISHED_GAME] = list()
+            platform[NOT_FINISHED_GAME] = list()
+            platform[FINISHED_WATCHED] = list()
+            platform[NOT_FINISHED_WATCHED] = list()
+
             platforms[platform_name] = platform
 
             continue
