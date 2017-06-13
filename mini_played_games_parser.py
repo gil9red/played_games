@@ -48,22 +48,23 @@ def parse_played_games(text: str) -> dict:
         seq_str = seq_str.replace(' ', '')
 
         if ',' in seq_str:
+            # '1,2,3' -> ['1', '2', '3']
             seq = seq_str.split(',')
 
         elif '-' in seq_str:
             seq = seq_str.split('-')
 
-            # ['1', '7'] -> (1, 7)
-            seq = tuple(map(int, seq))
+            # ['1', '7'] -> [1, 7]
+            seq = list(map(int, seq))
 
-            # (1, 7) -> (1, 2, 3, 4, 5, 6, 7)
-            seq = tuple(range(seq[0], seq[1] + 1))
+            # [1, 7] -> ['1', '2', '3', '4', '5', '6', '7']
+            seq = list(map(str, list(range(seq[0], seq[1] + 1))))
 
         else:
             return [game_name]
 
         # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
-        return [base_name if str(num) == '1' else '{} {}'.format(base_name, num) for num in seq]
+        return [base_name if num == '1' else base_name + " " + num for num in seq]
 
     from collections import OrderedDict
     platforms = OrderedDict()
