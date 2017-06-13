@@ -41,16 +41,24 @@ def parse_played_games(text: str) -> dict:
         seq_str = match.group(0)
 
         # "Resident Evil 4, 5, 6" -> "Resident Evil"
-        base_name = game_name.replace(seq_str, '').strip()
+        # For not valid "Trollface Quest 1-7-8" -> "Trollface Quest"
+        index = game_name.index(seq_str)
+        base_name = game_name[:index].strip()
+
+        seq_str = seq_str.replace(' ', '')
 
         if ',' in seq_str:
-            seq = seq_str.replace(' ', '').split(',')
+            seq = seq_str.split(',')
 
         elif '-' in seq_str:
-            seq = seq_str.replace(' ', '').split('-')
-            if len(seq) == 2:
-                seq = tuple(map(int, seq))
-                seq = tuple(range(seq[0], seq[1] + 1))
+            seq = seq_str.split('-')
+
+            # ['1', '7'] -> (1, 7)
+            seq = tuple(map(int, seq))
+
+            # (1, 7) -> (1, 2, 3, 4, 5, 6, 7)
+            seq = tuple(range(seq[0], seq[1] + 1))
+
         else:
             return [game_name]
 
