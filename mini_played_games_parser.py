@@ -15,6 +15,16 @@ def parse_played_games(text: str) -> dict:
     FINISHED_WATCHED = 'FINISHED_WATCHED'
     NOT_FINISHED_WATCHED = 'NOT_FINISHED_WATCHED'
 
+    FLAG_BY_CATEGORY = {
+        '  ': FINISHED_GAME,
+        '- ': NOT_FINISHED_GAME,
+        ' -': NOT_FINISHED_GAME,
+        ' @': FINISHED_WATCHED,
+        '@ ': FINISHED_WATCHED,
+        '-@': NOT_FINISHED_WATCHED,
+        '@-': NOT_FINISHED_WATCHED,
+    }
+
     # Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
     import re
     PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, *?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
@@ -93,17 +103,19 @@ def parse_played_games(text: str) -> dict:
         flag = line[:2]
         games = parse_game_name(line[2:])
 
-        if flag == '  ':
-            platform[FINISHED_GAME] += games
+        category_name = FLAG_BY_CATEGORY.get(flag)
+        if not category_name:
+            print('Странный формат строки: "{}"'.format(line))
+            continue
 
-        elif flag == ' -' or flag == '- ':
-            platform[NOT_FINISHED_GAME] += games
+        category = platform[category_name]
 
-        elif flag == ' @' or flag == '@ ':
-            platform[FINISHED_WATCHED] += games
+        for game in games:
+            if game in category:
+                print('Предотвращено добавление дубликата игры "{}"'.format(game))
+                continue
 
-        elif flag == '@-' or flag == '-@':
-            platform[NOT_FINISHED_WATCHED] += games
+            category.append(game)
 
     return platforms
 
