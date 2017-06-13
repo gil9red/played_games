@@ -18,7 +18,7 @@ PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]
                                      flags=re.IGNORECASE)
 
 
-def parse_game_name(game_name):
+def parse_game_name(game_name: str) -> list:
     """
     Функция принимает название игры и пытается разобрать его, после возвращает список названий.
     У некоторых игр в названии может указываться ее части или диапазон частей, поэтому для правильного
