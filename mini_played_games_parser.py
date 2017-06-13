@@ -39,7 +39,9 @@ def parse_played_games(text: str) -> dict:
             return [game_name]
 
         seq_str = match.group(0)
-        short_name = game_name.replace(seq_str, '').strip()
+
+        # "Resident Evil 4, 5, 6" -> "Resident Evil"
+        base_name = game_name.replace(seq_str, '').strip()
 
         if ',' in seq_str:
             seq = seq_str.replace(' ', '').split(',')
@@ -53,7 +55,7 @@ def parse_played_games(text: str) -> dict:
             return [game_name]
 
         # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
-        return [short_name if str(num) == '1' else '{} {}'.format(short_name, num) for num in seq]
+        return [base_name if str(num) == '1' else '{} {}'.format(base_name, num) for num in seq]
 
     from collections import OrderedDict
     platforms = OrderedDict()
