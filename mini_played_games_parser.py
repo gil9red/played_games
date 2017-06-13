@@ -110,8 +110,19 @@ def parse_played_games(text: str) -> dict:
 
 if __name__ == '__main__':
     text = open('gistfile1.txt', encoding='utf-8').read()
+
     platforms = parse_played_games(text)
+    print('Platforms:', len(platforms))
+
+    total_games = 0
+    for categories in platforms.values():
+        for games in categories.values():
+            total_games += len(games)
+
+    print('Games:', total_games)
+    print()
     print(', '.join(platforms.keys()))
+    print(platforms)
 
     import json
     json.dump(platforms, open('games.json', mode='w', encoding='utf-8'), ensure_ascii=False, indent=4)
