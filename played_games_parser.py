@@ -56,7 +56,7 @@ def parse_game_name(game_name):
         seq = list(map(int, seq))
 
         # [1, 7] -> ['1', '2', '3', '4', '5', '6', '7']
-        seq = list(map(str, list(range(seq[0], seq[1] + 1))))
+        seq = list(map(str, range(seq[0], seq[1] + 1)))
 
     else:
         logger.warning('Unknown seq str = "{}".'.format(seq_str))
