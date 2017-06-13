@@ -21,14 +21,13 @@ PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]
 def parse_game_name(game_name):
     """
     Функция принимает название игры и пытается разобрать его, после возвращает список названий.
-    Т.к. в названии игры может находиться указание ее частей, то функция разберет их.
+    У некоторых игр в названии может указываться ее части или диапазон частей, поэтому для правильного
+    составления списка игр такие случаи нужно обрабатывать.
 
     Пример:
-        "Resident Evil 4, 5, 6" станет:
-            ["Resident Evil 4", "Resident Evil 5", "Resident Evil 6"]
-
-        "Resident Evil 1-3" станет:
-            ["Resident Evil", "Resident Evil 2", "Resident Evil 3"]
+        "Resident Evil 4, 5, 6" -> ["Resident Evil 4", "Resident Evil 5", "Resident Evil 6"]
+        "Resident Evil 1-3"     -> ["Resident Evil", "Resident Evil 2", "Resident Evil 3"]
+        "Resident Evil 4"       -> ["Resident Evil 4"]
 
     """
 
