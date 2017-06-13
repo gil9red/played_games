@@ -101,8 +101,6 @@ def parse_played_games(text: str) -> dict:
             continue
 
         flag = line[:2]
-        games = parse_game_name(line[2:])
-
         category_name = FLAG_BY_CATEGORY.get(flag)
         if not category_name:
             print('Странный формат строки: "{}"'.format(line))
@@ -110,6 +108,7 @@ def parse_played_games(text: str) -> dict:
 
         category = platform[category_name]
 
+        games = parse_game_name(line[2:])
         for game in games:
             if game in category:
                 print('Предотвращено добавление дубликата игры "{}"'.format(game))
