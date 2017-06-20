@@ -108,8 +108,8 @@ def parse_played_games(text: str) -> dict:
 
         category = platform[category_name]
 
-        games = parse_game_name(line[2:])
-        for game in games:
+        game_name = line[2:]
+        for game in parse_game_name(game_name):
             if game in category:
                 print('Предотвращено добавление дубликата игры "{}"'.format(game))
                 continue
