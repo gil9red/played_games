@@ -150,6 +150,8 @@ if __name__ == '__main__':
 
         import re
         match = re.search('/gil9red/2f80a34fb601cd685353/raw/.+/gistfile1.txt', rs.text)
+        if not match:
+            return
 
         from urllib.parse import urljoin
         url = urljoin(rs.url, match.group())
