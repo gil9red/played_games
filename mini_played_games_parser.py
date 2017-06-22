@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from sympy.functions.elementary.complexes import im
 
 __author__ = 'ipetrash'
 
@@ -120,20 +121,47 @@ def parse_played_games(text: str) -> dict:
 
 
 if __name__ == '__main__':
-    text = open('gistfile1.txt', encoding='utf-8').read()
+    def print_text(text, export_to_file_name):
+        platforms = parse_played_games(text)
+        print('Platforms:', len(platforms))
 
-    platforms = parse_played_games(text)
-    print('Platforms:', len(platforms))
+        total_games = 0
+        for categories in platforms.values():
+            for games in categories.values():
+                total_games += len(games)
 
-    total_games = 0
-    for categories in platforms.values():
-        for games in categories.values():
-            total_games += len(games)
+        print('Games:', total_games)
+        print()
+        print(', '.join(platforms.keys()))
+        print(platforms)
 
-    print('Games:', total_games)
-    print()
-    print(', '.join(platforms.keys()))
-    print(platforms)
+        import json
+        json.dump(platforms, open(export_to_file_name, mode='w', encoding='utf-8'), ensure_ascii=False, indent=4)
 
-    import json
-    json.dump(platforms, open('games.json', mode='w', encoding='utf-8'), ensure_ascii=False, indent=4)
+    def get_text_from_local():
+        with open('gistfile1.txt', encoding='utf-8') as f:
+            return f.read()
+
+    def get_text_from_url():
+        url_gist = 'https://gist.github.com/gil9red/2f80a34fb601cd685353'
+
+        import requests
+        rs = requests.get(url_gist)
+
+        import re
+        match = re.search('/gil9red/2f80a34fb601cd685353/raw/.+/gistfile1.txt', rs.text)
+
+        from urllib.parse import urljoin
+        url = urljoin(rs.url, match.group())
+
+        rs = requests.get(url)
+        return rs.text
+
+    print('get_text_from_local')
+    text = get_text_from_local()
+    print_text(text, 'games_local.json')
+
+    print('\n')
+    print('get_text_from_url')
+    text = get_text_from_url()
+    print_text(text, 'games_url.json')
