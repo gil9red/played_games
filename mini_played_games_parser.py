@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from sympy.functions.elementary.complexes import im
 
 __author__ = 'ipetrash'
 
