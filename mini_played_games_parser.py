@@ -4,7 +4,7 @@
 __author__ = 'ipetrash'
 
 
-def parse_played_games(text: str) -> dict:
+def parse_played_games(text: str, silence: bool=True) -> dict:
     """
     Функция для парсинга списка игр.
 
@@ -103,7 +103,9 @@ def parse_played_games(text: str) -> dict:
         flag = line[:2]
         category_name = FLAG_BY_CATEGORY.get(flag)
         if not category_name:
-            print('Странный формат строки: "{}"'.format(line))
+            if not silence:
+                print('Странный формат строки: "{}"'.format(line))
+
             continue
 
         category = platform[category_name]
@@ -111,7 +113,9 @@ def parse_played_games(text: str) -> dict:
         game_name = line[2:]
         for game in parse_game_name(game_name):
             if game in category:
-                print('Предотвращено добавление дубликата игры "{}"'.format(game))
+                if not silence:
+                    print('Предотвращено добавление дубликата игры "{}"'.format(game))
+
                 continue
 
             category.append(game)
@@ -121,7 +125,7 @@ def parse_played_games(text: str) -> dict:
 
 if __name__ == '__main__':
     def print_text(text, export_to_file_name):
-        platforms = parse_played_games(text)
+        platforms = parse_played_games(text, silence=False)
         print('Platforms:', len(platforms))
 
         total_games = 0
