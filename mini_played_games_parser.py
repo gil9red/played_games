@@ -27,8 +27,10 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
 
     # Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
     import re
-    PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, *?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
-                                         flags=re.IGNORECASE)
+    PARSE_GAME_NAME_PATTERN = re.compile(
+        r'(\d+(, *?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
+        flags=re.IGNORECASE
+    )
 
     def parse_game_name(game_name: str) -> list:
         """
@@ -75,8 +77,7 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
         # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
         return [base_name if num == '1' else base_name + " " + num for num in seq]
 
-    from collections import OrderedDict
-    platforms = OrderedDict()
+    platforms = dict()
     platform = None
 
     for line in text.splitlines():
@@ -84,15 +85,16 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
         if not line:
             continue
 
-        if line[0] not in ' -@' and line[1] not in ' -@' and line.endswith(':'):
+        flag = line[:2]
+        if flag not in FLAG_BY_CATEGORY and line.endswith(':'):
             platform_name = line[:-1]
 
-            platform = OrderedDict()
-            platform[FINISHED_GAME] = list()
-            platform[NOT_FINISHED_GAME] = list()
-            platform[FINISHED_WATCHED] = list()
-            platform[NOT_FINISHED_WATCHED] = list()
-
+            platform = {
+                FINISHED_GAME: [],
+                NOT_FINISHED_GAME: [],
+                FINISHED_WATCHED: [],
+                NOT_FINISHED_WATCHED: [],
+            }
             platforms[platform_name] = platform
 
             continue
@@ -100,12 +102,10 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
         if not platform:
             continue
 
-        flag = line[:2]
         category_name = FLAG_BY_CATEGORY.get(flag)
         if not category_name:
             if not silence:
                 print('Странный формат строки: "{}"'.format(line))
-
             continue
 
         category = platform[category_name]
@@ -115,7 +115,6 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
             if game in category:
                 if not silence:
                     print('Предотвращено добавление дубликата игры "{}"'.format(game))
-
                 continue
 
             category.append(game)
