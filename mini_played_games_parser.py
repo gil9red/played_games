@@ -4,78 +4,87 @@
 __author__ = 'ipetrash'
 
 
-def parse_played_games(text: str, silence: bool=False) -> dict:
+import re
+
+from typing import Dict, List
+from urllib.parse import urljoin
+
+import requests
+
+
+# Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
+PARSE_GAME_NAME_PATTERN = re.compile(
+    r'(\d+(, *?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
+    flags=re.IGNORECASE
+)
+
+FINISHED_GAME = 'FINISHED_GAME'
+NOT_FINISHED_GAME = 'NOT_FINISHED_GAME'
+FINISHED_WATCHED = 'FINISHED_WATCHED'
+NOT_FINISHED_WATCHED = 'NOT_FINISHED_WATCHED'
+
+FLAG_BY_CATEGORY = {
+    '  ': FINISHED_GAME,
+    '- ': NOT_FINISHED_GAME,
+    ' -': NOT_FINISHED_GAME,
+    ' @': FINISHED_WATCHED,
+    '@ ': FINISHED_WATCHED,
+    '-@': NOT_FINISHED_WATCHED,
+    '@-': NOT_FINISHED_WATCHED,
+}
+
+
+def parse_game_name(game_name: str) -> List[str]:
+    """
+    Функция принимает название игры и пытается разобрать его, после возвращает список названий.
+    У некоторых игр в названии может указываться ее части или диапазон частей, поэтому для правильного
+    составления списка игр такие случаи нужно обрабатывать.
+
+    Пример:
+        "Resident Evil 4, 5, 6" -> ["Resident Evil 4", "Resident Evil 5", "Resident Evil 6"]
+        "Resident Evil 1-3"     -> ["Resident Evil", "Resident Evil 2", "Resident Evil 3"]
+        "Resident Evil 4"       -> ["Resident Evil 4"]
+
+    """
+
+    match = PARSE_GAME_NAME_PATTERN.search(game_name)
+    if not match:
+        return [game_name]
+
+    seq_str = match.group(0)
+
+    # "Resident Evil 4, 5, 6" -> "Resident Evil"
+    # For not valid "Trollface Quest 1-7-8" -> "Trollface Quest"
+    index = game_name.index(seq_str)
+    base_name = game_name[:index].strip()
+
+    seq_str = seq_str.replace(' ', '')
+
+    if ',' in seq_str:
+        # '1,2,3' -> ['1', '2', '3']
+        seq = seq_str.split(',')
+
+    elif '-' in seq_str:
+        seq = seq_str.split('-')
+
+        # ['1', '7'] -> [1, 7]
+        seq = list(map(int, seq))
+
+        # [1, 7] -> ['1', '2', '3', '4', '5', '6', '7']
+        seq = list(map(str, range(seq[0], seq[1] + 1)))
+
+    else:
+        return [game_name]
+
+    # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
+    return [base_name if num == '1' else base_name + " " + num for num in seq]
+
+
+def parse_played_games(text: str, silence: bool = False) -> Dict[str, Dict[str, List[str]]]:
     """
     Функция для парсинга списка игр.
 
     """
-
-    FINISHED_GAME = 'FINISHED_GAME'
-    NOT_FINISHED_GAME = 'NOT_FINISHED_GAME'
-    FINISHED_WATCHED = 'FINISHED_WATCHED'
-    NOT_FINISHED_WATCHED = 'NOT_FINISHED_WATCHED'
-
-    FLAG_BY_CATEGORY = {
-        '  ': FINISHED_GAME,
-        '- ': NOT_FINISHED_GAME,
-        ' -': NOT_FINISHED_GAME,
-        ' @': FINISHED_WATCHED,
-        '@ ': FINISHED_WATCHED,
-        '-@': NOT_FINISHED_WATCHED,
-        '@-': NOT_FINISHED_WATCHED,
-    }
-
-    # Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
-    import re
-    PARSE_GAME_NAME_PATTERN = re.compile(
-        r'(\d+(, *?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
-        flags=re.IGNORECASE
-    )
-
-    def parse_game_name(game_name: str) -> list:
-        """
-        Функция принимает название игры и пытается разобрать его, после возвращает список названий.
-        У некоторых игр в названии может указываться ее части или диапазон частей, поэтому для правильного
-        составления списка игр такие случаи нужно обрабатывать.
-
-        Пример:
-            "Resident Evil 4, 5, 6" -> ["Resident Evil 4", "Resident Evil 5", "Resident Evil 6"]
-            "Resident Evil 1-3"     -> ["Resident Evil", "Resident Evil 2", "Resident Evil 3"]
-            "Resident Evil 4"       -> ["Resident Evil 4"]
-
-        """
-
-        match = PARSE_GAME_NAME_PATTERN.search(game_name)
-        if match is None:
-            return [game_name]
-
-        seq_str = match.group(0)
-
-        # "Resident Evil 4, 5, 6" -> "Resident Evil"
-        # For not valid "Trollface Quest 1-7-8" -> "Trollface Quest"
-        index = game_name.index(seq_str)
-        base_name = game_name[:index].strip()
-
-        seq_str = seq_str.replace(' ', '')
-
-        if ',' in seq_str:
-            # '1,2,3' -> ['1', '2', '3']
-            seq = seq_str.split(',')
-
-        elif '-' in seq_str:
-            seq = seq_str.split('-')
-
-            # ['1', '7'] -> [1, 7]
-            seq = list(map(int, seq))
-
-            # [1, 7] -> ['1', '2', '3', '4', '5', '6', '7']
-            seq = list(map(str, range(seq[0], seq[1] + 1)))
-
-        else:
-            return [game_name]
-
-        # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
-        return [base_name if num == '1' else base_name + " " + num for num in seq]
 
     platforms = dict()
     platform = None
@@ -105,7 +114,7 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
         category_name = FLAG_BY_CATEGORY.get(flag)
         if not category_name:
             if not silence:
-                print('Странный формат строки: "{}"'.format(line))
+                print(f'Странный формат строки: "{line}"')
             continue
 
         category = platform[category_name]
@@ -114,12 +123,31 @@ def parse_played_games(text: str, silence: bool=False) -> dict:
         for game in parse_game_name(game_name):
             if game in category:
                 if not silence:
-                    print('Предотвращено добавление дубликата игры "{}"'.format(game))
+                    print(f'Предотвращено добавление дубликата игры "{game}"')
                 continue
 
             category.append(game)
 
     return platforms
+
+
+def get_text_from_url() -> str:
+    url_gist = 'https://gist.github.com/gil9red/2f80a34fb601cd685353'
+    rs = requests.get(url_gist)
+
+    match = re.search('/gil9red/2f80a34fb601cd685353/raw/.+/gistfile1.txt', rs.text)
+    if not match:
+        return ''
+
+    url = urljoin(rs.url, match.group())
+
+    rs = requests.get(url)
+    return rs.text
+
+
+def get_played_games() -> Dict[str, Dict[str, List[str]]]:
+    text = get_text_from_url()
+    return parse_played_games(text)
 
 
 if __name__ == '__main__':
@@ -144,23 +172,6 @@ if __name__ == '__main__':
         with open('gistfile1.txt', encoding='utf-8') as f:
             return f.read()
 
-    def get_text_from_url():
-        url_gist = 'https://gist.github.com/gil9red/2f80a34fb601cd685353'
-
-        import requests
-        rs = requests.get(url_gist)
-
-        import re
-        match = re.search('/gil9red/2f80a34fb601cd685353/raw/.+/gistfile1.txt', rs.text)
-        if not match:
-            return
-
-        from urllib.parse import urljoin
-        url = urljoin(rs.url, match.group())
-
-        rs = requests.get(url)
-        return rs.text
-
     print('get_text_from_local')
     text = get_text_from_local()
     print_text(text, 'games_local.json')
@@ -169,3 +180,5 @@ if __name__ == '__main__':
     print('get_text_from_url')
     text = get_text_from_url()
     print_text(text, 'games_url.json')
+
+    assert parse_played_games(text) == get_played_games()
