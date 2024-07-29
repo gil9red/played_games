@@ -202,7 +202,7 @@ class MainWindow(QMainWindow):
             else:
                 # Теперь нужно получить url файла с последней ревизией
                 logger.debug('Get url file last revision start.')
-                t = time.clock()
+                t = time.perf_counter()
 
                 try:
                     with urlopen(url) as f:
@@ -212,13 +212,13 @@ class MainWindow(QMainWindow):
                         tree = etree.parse(StringIO(context), parser)
 
                         # Ищем первый файл с кнопкой Raw
-                        rel_url = tree.xpath('//*[@class="btn btn-sm "]/@href')[0]
+                        rel_url = tree.xpath('//*[contains(@class, "file-actions")]/a/@href')[0]
                         logger.debug('Relative url = {}.'.format(rel_url))
 
                         url = urljoin(url, str(rel_url))
                         logger.debug('Full url = {}.'.format(url))
 
-                    logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
+                    logger.debug('Get url file last revision finish. Elapsed time: {:.3f} sec.'.format(time.perf_counter() - t))
 
                     with urlopen(url) as f:
                         content_file = f.read().decode()

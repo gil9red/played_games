@@ -318,7 +318,7 @@ class Parser:
         """
 
         logger.debug('Start parsing')
-        t = time.clock()
+        t = time.perf_counter()
 
         logger.debug('filter_exp="{}".'.format(filter_exp))
 
@@ -412,7 +412,7 @@ class Parser:
                 for category in platform.categories.values():
                     category.sort_game_list(reverse=sort_reverse)
 
-        logger.debug('Finish parsing. Elapsed time: {:.3f} sec.'.format(time.clock() - t))
+        logger.debug('Finish parsing. Elapsed time: {:.3f} sec.'.format(time.perf_counter() - t))
 
     @property
     def sorted_platforms(self, reverse=True):
