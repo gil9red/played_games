@@ -1,21 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__ = 'ipetrash'
+__author__ = "ipetrash"
 
+
+import fnmatch
+import time
+import re
 
 from collections import defaultdict
 from enum import Enum
-import fnmatch
-import time
 
 from common import get_logger
-logger = get_logger('played_games_parser')
+
+
+logger = get_logger("played_games_parser")
 
 # Регулярка вытаскивает выражения вида: 1, 2, 3 или 1-3, или римские цифры: III, IV
-import re
-PARSE_GAME_NAME_PATTERN = re.compile(r'(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)',
-                                     flags=re.IGNORECASE)
+PARSE_GAME_NAME_PATTERN = re.compile(
+    r"(\d+(, ?\d+)+)|(\d+ *?- *?\d+)|([MDCLXVI]+(, ?[MDCLXVI]+)+)", flags=re.IGNORECASE
+)
 
 
 def parse_game_name(game_name: str) -> list:
@@ -42,14 +46,14 @@ def parse_game_name(game_name: str) -> list:
     index = game_name.index(seq_str)
     base_name = game_name[:index].strip()
 
-    seq_str = seq_str.replace(' ', '')
+    seq_str = seq_str.replace(" ", "")
 
-    if ',' in seq_str:
+    if "," in seq_str:
         # '1,2,3' -> ['1', '2', '3']
-        seq = seq_str.split(',')
+        seq = seq_str.split(",")
 
-    elif '-' in seq_str:
-        seq = seq_str.split('-')
+    elif "-" in seq_str:
+        seq = seq_str.split("-")
 
         # ['1', '7'] -> [1, 7]
         seq = list(map(int, seq))
@@ -58,11 +62,11 @@ def parse_game_name(game_name: str) -> list:
         seq = list(map(str, range(seq[0], seq[1] + 1)))
 
     else:
-        logger.warning('Unknown seq str = "{}".'.format(seq_str))
+        logger.warning(f'Unknown seq str = "{seq_str}".')
         return [game_name]
 
     # Сразу проверяем номер игры в серии и если она первая, то не добавляем в названии ее номер
-    return [base_name if num == '1' else base_name + " " + num for num in seq]
+    return [base_name if num == "1" else base_name + " " + num for num in seq]
 
 
 class Parser:
@@ -80,7 +84,7 @@ class Parser:
         OTHER = 4
 
         def __str__(self):
-            return '{}'.format(self.name)
+            return f"{self.name}"
 
         def __repr__(self):
             return self.__str__()
@@ -97,7 +101,7 @@ class Parser:
             return self.category.kind if self.category is not None else None
 
         def __str__(self):
-            return 'Game "{}" ({})'.format(self.name, self.category_kind)
+            return f'Game "{self.name}" ({self.category_kind})'
 
         def __repr__(self):
             return self.__str__()
@@ -135,7 +139,7 @@ class Parser:
             return self.game_list.next()
 
         def __str__(self):
-            return 'Category {} ({})'.format(self.kind, self.count)
+            return f"Category {self.kind} ({self.count})"
 
         def __repr__(self):
             return self.__str__()
@@ -165,8 +169,9 @@ class Parser:
 
             # Если игра с такой категории в списке всех игр уже есть
             if (game_name, category.kind) in self._game_name_dict:
-                logger.warn('Предотвращено добавление дубликата игры "{}" в категорию {}.'.format(
-                    game_name, category.kind))
+                logger.warning(
+                    f'Предотвращено добавление дубликата игры "{game_name}" в категорию {category.kind}.'
+                )
                 return
 
             game = Parser.Game(game_name, category)
@@ -199,7 +204,7 @@ class Parser:
             return self.categories[kind_category]
 
         def __str__(self):
-            return 'Platform {}. Games: {}. Categories: {}.'.format(self.name, self.count_games, self.count_categories)
+            return f"Platform {self.name}. Games: {self.count_games}. Categories: {self.count_categories}."
 
         def __repr__(self):
             return self.__str__()
@@ -236,12 +241,12 @@ class Parser:
             return self.platforms[name_platform]
 
         def __str__(self):
-            return 'Other. Platforms: {}. Games: {}. '.format(self.count_platforms, self.count_categories)
+            return f"Other. Platforms: {self.count_platforms}. Games: {self.count_categories}. "
 
         def __repr__(self):
             return self.__str__()
 
-    ALL_ATTRIBUTES_GAMES = ' -@'
+    ALL_ATTRIBUTES_GAMES = " -@"
 
     def __init__(self):
         self.platforms = dict()
@@ -289,12 +294,21 @@ class Parser:
         for name in platform_on_delete:
             del platforms[name]
 
-    def parse(self, text, filter_exp='', parse_game_name_on_sequence=True, sort_game=False, sort_reverse=False,
-              show_only_categories=(CategoryEnum.FINISHED_GAME,
-                                    CategoryEnum.NOT_FINISHED_GAME,
-                                    CategoryEnum.FINISHED_WATCHED,
-                                    CategoryEnum.NOT_FINISHED_WATCHED,
-                                    CategoryEnum.OTHER)):
+    def parse(
+        self,
+        text,
+        filter_exp="",
+        parse_game_name_on_sequence=True,
+        sort_game=False,
+        sort_reverse=False,
+        show_only_categories=(
+            CategoryEnum.FINISHED_GAME,
+            CategoryEnum.NOT_FINISHED_GAME,
+            CategoryEnum.FINISHED_WATCHED,
+            CategoryEnum.NOT_FINISHED_WATCHED,
+            CategoryEnum.OTHER,
+        ),
+    ):
         """Функция парсит строку игр.
 
         Args:
@@ -317,15 +331,15 @@ class Parser:
             show_only_categories (list): фильтр по категориям
         """
 
-        logger.debug('Start parsing')
+        logger.debug("Start parsing")
         t = time.perf_counter()
 
-        logger.debug('filter_exp="{}".'.format(filter_exp))
+        logger.debug(f'filter_exp="{filter_exp}".')
 
         # Для возможности поиска просто по словам:
-        if not filter_exp.endswith('*'):
-            filter_exp += '*'
-            logger.debug('Change filter_exp="{}".'.format(filter_exp))
+        if not filter_exp.endswith("*"):
+            filter_exp += "*"
+            logger.debug(f'Change filter_exp="{filter_exp}".')
 
         self.platforms.clear()
         self.other.platforms.clear()
@@ -333,16 +347,18 @@ class Parser:
         name_platform = None
 
         # Проходим в текст построчно
-        for line in text.split('\n'):
+        for line in text.split("\n"):
             line = line.rstrip()
             if not line:
                 continue
 
             # Определим игровую платформу: ПК, консоли и т.п.
-            if (line[0] not in Parser.ALL_ATTRIBUTES_GAMES
-                and line[1] not in Parser.ALL_ATTRIBUTES_GAMES) and line.endswith(':'):
+            if (
+                line[0] not in Parser.ALL_ATTRIBUTES_GAMES
+                and line[1] not in Parser.ALL_ATTRIBUTES_GAMES
+            ) and line.endswith(":"):
                 # Имя платформы без двоеточия на конце
-                name_platform = line[0: len(line) - 1]
+                name_platform = line[0 : len(line) - 1]
                 platform_item = self.get(name_platform)
                 continue
 
@@ -352,7 +368,11 @@ class Parser:
 
                 # Третий символ и до конца строки -- имя игры
                 game_name = line[2:]
-                game_name_list = parse_game_name(game_name) if parse_game_name_on_sequence else [game_name]
+                game_name_list = (
+                    parse_game_name(game_name)
+                    if parse_game_name_on_sequence
+                    else [game_name]
+                )
 
                 for game_name in game_name_list:
                     # Фильтруем игры
@@ -362,23 +382,24 @@ class Parser:
                     # Проверим на неизвестные атрибуты
                     unknown_attributes = str(attributes)
                     for c in Parser.ALL_ATTRIBUTES_GAMES:
-                        unknown_attributes = unknown_attributes.replace(c, '')
+                        unknown_attributes = unknown_attributes.replace(c, "")
 
                     # Если строка не пуста, значит в ней есть неизвестные символы
                     if unknown_attributes:
                         # Добавляем, если нет, к неопределенным играм узел платформы или получаем платформу
-                        logger.warning('Обнаружен неизвестный атрибут: {}, игра: {}, платформа: {}.'.format(
-                            unknown_attributes, line, name_platform))
+                        logger.warning(
+                            f"Обнаружен неизвестный атрибут: {unknown_attributes}, игра: {line}, платформа: {name_platform}."
+                        )
 
                         if Parser.CategoryEnum.OTHER in show_only_categories:
                             self.other.add_game(name_platform, line)
                         continue
 
-                    is_finished_watched = attributes == '@ ' or attributes == ' @'
-                    is_not_finished_watched = attributes == '@-' or attributes == '-@'
+                    is_finished_watched = attributes == "@ " or attributes == " @"
+                    is_not_finished_watched = attributes == "@-" or attributes == "-@"
 
-                    is_finished_game = attributes == '  '
-                    is_not_finished_game = attributes == '- ' or attributes == ' -'
+                    is_finished_game = attributes == "  "
+                    is_not_finished_game = attributes == "- " or attributes == " -"
 
                     def add_game(category, game_name):
                         # Фильтруем по типу категории
@@ -395,7 +416,9 @@ class Parser:
                         add_game(Parser.CategoryEnum.NOT_FINISHED_WATCHED, game_name)
                     else:
                         if Parser.CategoryEnum.OTHER in show_only_categories:
-                            logger.warning('Неопределенная игра {}, платформа: {}.'.format(line, name_platform))
+                            logger.warning(
+                                f"Неопределенная игра {line}, платформа: {name_platform}."
+                            )
                             self.other.add_game(name_platform, game_name)
 
         Parser.delete_empty_platforms(self.platforms)
@@ -412,7 +435,9 @@ class Parser:
                 for category in platform.categories.values():
                     category.sort_game_list(reverse=sort_reverse)
 
-        logger.debug('Finish parsing. Elapsed time: {:.3f} sec.'.format(time.perf_counter() - t))
+        logger.debug(
+            f"Finish parsing. Elapsed time: {time.perf_counter() - t:.3f} sec."
+        )
 
     @property
     def sorted_platforms(self, reverse=True):
@@ -421,25 +446,27 @@ class Parser:
 
         """
 
-        return sorted(self.platforms.items(), key=lambda x: x[1].count_games, reverse=reverse)
+        return sorted(
+            self.platforms.items(), key=lambda x: x[1].count_games, reverse=reverse
+        )
 
 
-if __name__ == '__main__':
-    text = open('gistfile1.txt', encoding='utf8').read()
+if __name__ == "__main__":
+    text = open("gistfile1.txt", encoding="utf8").read()
 
     p = Parser()
     p.parse(text)
 
-    indent = ' ' * 2
+    indent = " " * 2
 
     print()
-    print('Games ({})'.format(p.count_games))
-    print('Platforms ({}):'.format(p.count_platforms))
+    print(f"Games ({p.count_games})")
+    print(f"Platforms ({p.count_platforms}):")
     for k, v in p.sorted_platforms:
-        print('{}{}({}):'.format(indent, k, v.count_games))
+        print(f"{indent}{k}({v.count_games}):")
 
         for kind, category in v.categories.items():
-            print('{}{}({}):'.format(indent * 2, kind, category.count))
+            print(f"{indent * 2}{kind}({category.count}):")
 
             for game in category:
                 print(indent * 3, game.name)
@@ -447,9 +474,9 @@ if __name__ == '__main__':
             print()
 
     print()
-    print('Other ({}/{}):'.format(p.other.count_platforms, p.other.count_games))
+    print(f"Other ({p.other.count_platforms}/{p.other.count_games}):")
     for k, v in p.other.platforms.items():
-        print('{}{}({}):'.format(indent, k, v.count_games))
+        print(f"{indent}{k}({v.count_games}):")
 
         for category in v.categories.values():
             for game in category:
