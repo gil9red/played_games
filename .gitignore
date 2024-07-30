@@ -106,3 +106,9 @@ docs/_build/
 # PyBuilder
 target/
 
+# Current project
+config
+log.txt
+games.json
+games_local.json
+games_url.json
