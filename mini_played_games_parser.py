@@ -202,15 +202,18 @@ PC:
             indent=4,
         )
 
+    print("get_text_from_local")
+
     def get_text_from_local():
         with open("gistfile1.txt", encoding="utf-8") as f:
             return f.read()
 
-    print("get_text_from_local")
     text = get_text_from_local()
     print_text(text, "games_local.json")
 
     print("\n" + "-" * 100 + "\n")
+
+    print("get_text_from_url")
 
     from urllib.parse import urljoin
     import requests
@@ -232,7 +235,6 @@ PC:
         text = get_text_from_url()
         return parse_played_games(text)
 
-    print("get_text_from_url")
     text = get_text_from_url()
     print_text(text, "games_url.json")
 
