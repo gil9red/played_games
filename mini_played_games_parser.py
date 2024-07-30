@@ -133,6 +133,8 @@ def parse_played_games(
 
             category.append(game)
 
+    # Проверка, что одна и та же игра не присутствует и в пройденных, и в не пройденных,
+    # или в просмотренных и в не просмотренных
     for platform, categories in platforms.items():
         for game in categories[NOT_FINISHED_GAME]:
             if game in categories[FINISHED_GAME]:
